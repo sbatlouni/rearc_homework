@@ -26,6 +26,7 @@ resources:
             - task_key: Update_main_pipeline
           notebook_task:
             notebook_path: ../src/rearc_primary_job/PERMISSIONS.ipynb
+            notebook_path: ../src/rearc_primary_job/PERMISSIONS.ipynb
             source: WORKSPACE
       queue:
         enabled: true
