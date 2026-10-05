@@ -1,7 +1,7 @@
 resources:
   jobs:
-    dev_sbatlouni_rearc_primary_job:
-      name: "[dev sbatlouni] rearc_primary_job"
+    rearc_primary_job:
+      name: rearc_primary_job
       schedule:
         quartz_cron_expression: 38 0 1 * * ?
         timezone_id: America/New_York
@@ -9,28 +9,24 @@ resources:
       tasks:
         - task_key: BLS_Ingestion
           notebook_task:
-            notebook_path: ../src/rearc_primary_job/BLS
-              INGESTION
+            notebook_path: ../src/rearc_primary_job/BLS INGESTION.ipynb
             source: WORKSPACE
         - task_key: Population_ingestion
           notebook_task:
-            notebook_path: ../src/rearc_primary_job/POPULATION
-              INGESTION
+            notebook_path: ../src/rearc_primary_job/POPULATION INGESTION.ipynb
             source: WORKSPACE
         - task_key: Update_main_pipeline
           depends_on:
             - task_key: Population_ingestion
             - task_key: BLS_Ingestion
           pipeline_task:
-            pipeline_id: 33d3629f-3219-4192-8f86-0cd96e6f9134
+            pipeline_id: ${resources.pipelines.main_pipeline.id}
         - task_key: gold_permissions
           depends_on:
             - task_key: Update_main_pipeline
           notebook_task:
-            notebook_path: ../src/rearc_primary_job/PERMISSIONS
+            notebook_path: ../src/rearc_primary_job/PERMISSIONS.ipynb
             source: WORKSPACE
-      tags:
-        dev: sbatlouni
       queue:
         enabled: true
       performance_target: PERFORMANCE_OPTIMIZED

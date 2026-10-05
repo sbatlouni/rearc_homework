@@ -21,7 +21,7 @@ DataUSA API ─────┘   (rearc_primary_job)            └─ bronze.po
 Everything is deployed with a Databricks Asset Bundle ([databricks.yml](databricks.yml), [resources/](resources/)):
 
 - `init` creates the catalog, schemas, volume and metadata table. Run it once.
-- `rearc_primary_job` runs BLS ingestion and population ingestion in parallel, then refreshes `main_pipeline`.
+- `rearc_primary_job` runs BLS ingestion and population ingestion in parallel, refreshes `main_pipeline`, then applies the read-only grants on gold.
 
 ## Architecture
 
@@ -81,6 +81,15 @@ The best-year sum only includes `Q01`–`Q04`. About a fifth of the BLS data row
 
 The population join is a `LEFT JOIN`, because the question asks for population "where available" and BLS goes back further than the API.
 
+### Access control
+
+The last task of `rearc_primary_job` runs [PERMISSIONS.ipynb](src/rearc_primary_job/PERMISSIONS.ipynb), which sets up a read-only analyst role:
+
+- It creates a `gold_reader` group if it doesn't exist.
+- It grants that group `USE CATALOG` on `rearc`, `USE SCHEMA` on `rearc.gold`, and `SELECT` on `rearc.gold`.
+
+I granted `SELECT` on the schema rather than on each table, so new gold tables are readable without another grant. The group has no privileges on `raw`, `bronze` or `silver`, so analysts only see the finished answers, not the intermediate data. The task runs after the pipeline, so the gold schema and tables always exist when the grants are applied. Grants are idempotent, so re-running it every day costs nothing.
+
 ### SQL vs. PySpark
 
 All three gold questions exist in both languages:
@@ -104,7 +113,7 @@ What I'd handle differently for a real client:
   - use `APPLY CHANGES` / AUTO CDC into silver instead of window-based dedup
   - set a retention policy on old raw versions
   - check that serverless incremental refresh actually applies to the silver views
-- **Access control.** Everything is owned by one user. For a client I'd give analysts `USE CATALOG`, `USE SCHEMA` and `SELECT` on `rearc.gold` only, keep `raw`/`bronze`/`silver` to the pipeline's service principal, and run the job as that principal instead of a person.
+- **Access control.** Analysts already get read-only access to gold through `gold_reader`, but the pipeline objects are owned by one user and the job runs as that user. For a client I'd keep `raw`/`bronze`/`silver` to a service principal, run the job as that principal instead of a person, and manage `gold_reader` as an account-level group from the identity provider rather than creating it in a notebook.
 - **Monitoring.** Right now a failed job run is the only signal. I'd add:
   - job failure notifications
   - alerts on expectation metrics from the pipeline event log

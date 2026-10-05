@@ -15,6 +15,7 @@ This repo pulls the BLS productivity time series (`pr`) and DataUSA population d
 | One-time setup: catalog, schemas, volume, metadata table | [src/rearc_primary_job/CREATE NOTEBOOK.ipynb](src/rearc_primary_job/CREATE%20NOTEBOOK.ipynb) |
 | BLS ingestion (new or changed files only, versioned) | [src/rearc_primary_job/BLS INGESTION.ipynb](src/rearc_primary_job/BLS%20INGESTION.ipynb) |
 | Population API ingestion | [src/rearc_primary_job/POPULATION INGESTION.ipynb](src/rearc_primary_job/POPULATION%20INGESTION.ipynb) |
+| Read-only access to gold for analysts (`gold_reader` group) | [src/rearc_primary_job/PERMISSIONS.ipynb](src/rearc_primary_job/PERMISSIONS.ipynb) |
 | **Step 2: Pipeline** | |
 | Bronze: Auto Loader streaming tables, with schema expectations | [src/main_pipeline/transformations/bronze/](src/main_pipeline/transformations/bronze/) |
 | Silver: cleaned, typed, deduplicated materialized views | [src/main_pipeline/transformations/silver/](src/main_pipeline/transformations/silver/) |
@@ -69,11 +70,12 @@ This creates the `rearc` catalog, the `raw`, `bronze`, `silver` and `gold` schem
 databricks bundle run rearc_primary_job
 ```
 
-The job runs three tasks:
+The job runs four tasks:
 
 1. **BLS_Ingestion:** downloads the BLS files that are new or have changed since the last run.
 2. **Population_ingestion:** saves the population API response. It runs in parallel with BLS ingestion.
 3. **Update_main_pipeline:** refreshes bronze, silver and gold. It starts once both ingestion tasks have succeeded.
+4. **gold_permissions:** gives the `gold_reader` group read-only access to the gold tables (see [Access control](#access-control)).
 
 The job is scheduled daily at 1:00 AM America/New_York. Development-mode deployments normally pause schedules, so run it manually as above, or unpause it in the workspace.
 
@@ -86,6 +88,24 @@ SELECT * FROM rearc.gold.population_stats_2013_2018;
 SELECT * FROM rearc.gold.productivity_costs_index;
 SELECT * FROM rearc.gold.series_population ORDER BY year;
 ```
+
+### Access control
+
+The `gold_permissions` task runs [PERMISSIONS.ipynb](src/rearc_primary_job/PERMISSIONS.ipynb). It creates a `gold_reader` group if one doesn't exist and grants it:
+
+```sql
+GRANT USE CATALOG ON CATALOG rearc TO `gold_reader`;
+GRANT USE SCHEMA ON SCHEMA rearc.gold TO `gold_reader`;
+GRANT SELECT ON SCHEMA rearc.gold TO `gold_reader`;
+```
+
+Members of `gold_reader` can query every gold table, including gold tables added later, because `SELECT` is granted on the schema. They have no access to `raw`, `bronze` or `silver`, and can't modify anything. To give an analyst access, add them to the group. To check the grants:
+
+```sql
+SHOW GRANTS ON SCHEMA rearc.gold;
+```
+
+Grants are idempotent, so running this task on every job run is harmless. It runs after the pipeline so the gold schema and tables exist before the grants are applied.
 
 ### Re-running
 

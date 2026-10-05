@@ -9,8 +9,6 @@ resources:
             notebook_path: ../src/rearc_primary_job/CREATE NOTEBOOK.ipynb
             source: WORKSPACE
           environment_key: Default
-      tags:
-        dev: sbatlouni
       queue:
         enabled: true
       environments:
