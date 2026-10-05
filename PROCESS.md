@@ -140,6 +140,16 @@ It also reviewed the repo against the brief and pointed out gaps, such as duplic
 
 I also used Claude to structure this PROCESS.md. It proposed the sections and a first draft based on the repo and our working session, which I then reviewed and edited.
 
+## Results
+
+[Screenshots/Answers.html](Screenshots/Answers.html) is an export of [notebooks/Answers.ipynb](notebooks/Answers.ipynb), run after a full pipeline refresh. It contains the full output of all three gold tables, so you can see the results without access to my workspace. Download it and open it in a browser.
+
+| Question | Result |
+|---|---|
+| Mean and standard deviation of the US population, 2013–2018 | Mean **322,069,808**, standard deviation **4,158,441** (sample standard deviation) |
+| Best year per `series_id` | 237 series, each with its best year, summed `Q01`–`Q04` value, and readable seasonal, sector, class, measure and duration labels |
+| `PRS30006032`, `Q01`, with population | 39 years of values. Population is filled in where the API has it (2013–2019 and 2021–2024; there was no ACS 1-year release for 2020) |
+
 ## Screenshots
 
 See [Screenshots/](Screenshots/) for the bronze, silver and gold tables in Catalog Explorer.
