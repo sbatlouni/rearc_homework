@@ -5,6 +5,9 @@
 bundle:
   name: rearc_homework
 
+include:
+  - resources/*.yml
+
 targets:
   dev:
     mode: development

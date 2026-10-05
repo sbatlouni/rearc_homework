@@ -1,0 +1,14 @@
+resources:
+  pipelines:
+    main_pipeline:
+      name: main_pipeline
+      libraries:
+        - glob:
+            include: ../src/main_pipeline/transformations/**
+      catalog: rearc
+      channel: CURRENT
+      continuous: false
+      photon: true
+      root_path: ../src/main_pipeline
+      schema: raw
+      serverless: true

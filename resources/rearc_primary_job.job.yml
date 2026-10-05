@@ -1,0 +1,54 @@
+resources:
+  jobs:
+    rearc_primary_job:
+      name: rearc_primary_job
+      tasks:
+        - task_key: run_create_environment_notebook
+          disabled: false
+          email_notifications: {}
+          notebook_task:
+            notebook_path: ../src/rearc_primary_job/CREATE NOTEBOOK.ipynb
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+        - task_key: BLS_Ingestion
+          depends_on:
+            - task_key: run_create_environment_notebook
+          disabled: false
+          email_notifications: {}
+          notebook_task:
+            notebook_path: ../src/rearc_primary_job/BLS INGESTION.ipynb
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+        - task_key: Population_ingestion
+          depends_on:
+            - task_key: run_create_environment_notebook
+          disabled: false
+          email_notifications: {}
+          notebook_task:
+            notebook_path: ../src/rearc_primary_job/POPULATION INGESTION.ipynb
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+        - task_key: Update_main_pipeline
+          depends_on:
+            - task_key: Population_ingestion
+            - task_key: BLS_Ingestion
+          disabled: false
+          email_notifications: {}
+          pipeline_task:
+            pipeline_id: 5d5b9e56-d99c-4c84-8386-1d6bd737f88c
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+      email_notifications:
+        no_alert_for_skipped_runs: false
+      max_concurrent_runs: 1
+      performance_target: PERFORMANCE_OPTIMIZED
+      queue:
+        enabled: true
+      timeout_seconds: 0
+      webhook_notifications: {}
