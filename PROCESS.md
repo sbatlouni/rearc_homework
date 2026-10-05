@@ -161,4 +161,9 @@ I also used Claude to structure this PROCESS.md. It proposed the sections and a 
 
 ## Screenshots
 
-See [Screenshots/](Screenshots/) for the bronze, silver and gold tables in Catalog Explorer.
+See [Screenshots/](Screenshots/):
+
+- [bronze.png](Screenshots/bronze.png), [silver.png](Screenshots/silver.png), [gold.png](Screenshots/gold.png): the tables in Catalog Explorer
+- [pipeline.png](Screenshots/pipeline.png): the `main_pipeline` graph
+- [job.png](Screenshots/job.png): the `rearc_primary_job` tasks
+- [permissions.png](Screenshots/permissions.png): `SHOW GRANTS ON SCHEMA rearc.gold`, showing the `gold_reader` grants

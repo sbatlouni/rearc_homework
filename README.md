@@ -105,6 +105,8 @@ Members of `gold_reader` can query every gold table, including gold tables added
 SHOW GRANTS ON SCHEMA rearc.gold;
 ```
 
+The output from my workspace is in [Screenshots/permissions.png](Screenshots/permissions.png).
+
 Grants are idempotent, so running this task on every job run is harmless. It runs after the pipeline so the gold schema and tables exist before the grants are applied.
 
 ### Re-running
