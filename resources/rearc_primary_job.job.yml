@@ -10,12 +10,12 @@ resources:
         - task_key: BLS_Ingestion
           notebook_task:
             notebook_path: ../src/rearc_primary_job/BLS
-              INGESTION
+              INGESTION.ipynb
             source: WORKSPACE
         - task_key: Population_ingestion
           notebook_task:
             notebook_path: ../src/rearc_primary_job/POPULATION
-              INGESTION
+              INGESTION.ipynb
             source: WORKSPACE
         - task_key: Update_main_pipeline
           depends_on:
@@ -27,7 +27,7 @@ resources:
           depends_on:
             - task_key: Update_main_pipeline
           notebook_task:
-            notebook_path: ../src/rearc_primary_job/PERMISSIONS
+            notebook_path: ../src/rearc_primary_job/PERMISSIONS.ipynb
             source: WORKSPACE
       tags:
         dev: sbatlouni
