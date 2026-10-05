@@ -1,0 +1,20 @@
+resources:
+  jobs:
+    init:
+      name: init
+      max_concurrent_runs: 4
+      tasks:
+        - task_key: init
+          notebook_task:
+            notebook_path: ../src/rearc_primary_job/CREATE NOTEBOOK.ipynb
+            source: WORKSPACE
+          environment_key: Default
+      tags:
+        dev: sbatlouni
+      queue:
+        enabled: true
+      environments:
+        - environment_key: Default
+          spec:
+            environment_version: "6"
+      performance_target: PERFORMANCE_OPTIMIZED

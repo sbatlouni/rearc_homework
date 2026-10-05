@@ -3,18 +3,7 @@ resources:
     rearc_primary_job:
       name: rearc_primary_job
       tasks:
-        - task_key: run_create_environment_notebook
-          disabled: false
-          email_notifications: {}
-          notebook_task:
-            notebook_path: ../src/rearc_primary_job/CREATE NOTEBOOK.ipynb
-            source: WORKSPACE
-          run_if: ALL_SUCCESS
-          timeout_seconds: 0
-          webhook_notifications: {}
         - task_key: BLS_Ingestion
-          depends_on:
-            - task_key: run_create_environment_notebook
           disabled: false
           email_notifications: {}
           notebook_task:
@@ -24,8 +13,6 @@ resources:
           timeout_seconds: 0
           webhook_notifications: {}
         - task_key: Population_ingestion
-          depends_on:
-            - task_key: run_create_environment_notebook
           disabled: false
           email_notifications: {}
           notebook_task:
@@ -41,7 +28,7 @@ resources:
           disabled: false
           email_notifications: {}
           pipeline_task:
-            pipeline_id: 5d5b9e56-d99c-4c84-8386-1d6bd737f88c
+            pipeline_id: ${resources.pipelines.main_pipeline.id}
           run_if: ALL_SUCCESS
           timeout_seconds: 0
       email_notifications:
