@@ -5,7 +5,8 @@ CREATE OR REFRESH MATERIALIZED VIEW rearc.silver.population
 COMMENT 'Cleansed DataUSA population data, exploded from nested JSON array'
 (
   CONSTRAINT nation_id_not_null EXPECT (nation_id IS NOT NULL) ON VIOLATION FAIL UPDATE,
-  CONSTRAINT year_not_null EXPECT (year IS NOT NULL) ON VIOLATION FAIL UPDATE
+  CONSTRAINT year_not_null EXPECT (year IS NOT NULL) ON VIOLATION FAIL UPDATE,
+  CONSTRAINT population_positive EXPECT (population > 0) ON VIOLATION FAIL UPDATE
 )
 AS
 WITH exploded AS (

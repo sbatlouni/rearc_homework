@@ -6,6 +6,7 @@ from pyspark.sql.window import Window
 @dp.materialized_view(name="rearc.silver.population", comment="Cleansed DataUSA population data, exploded from nested JSON array")
 @dp.expect_or_fail("nation_id_not_null", "nation_id IS NOT NULL")
 @dp.expect_or_fail("year_not_null", "year IS NOT NULL")
+@dp.expect_or_fail("population_positive", "population > 0")
 def silver_population():
     return (
         spark.read.table("rearc.bronze.population")

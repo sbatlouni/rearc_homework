@@ -4,11 +4,13 @@ CREATE OR REFRESH MATERIALIZED VIEW rearc.gold.productivity_costs_index
 COMMENT 'Major Sector Productivity and Costs Index - highest annual total per series with dimension lookups'
 AS
 WITH yearly_totals AS (
+  -- Q05 is the annual average (see pr.period), not a quarter, so it is left out of the quarterly sum.
   SELECT
     series_id,
     year,
     SUM(value) AS total
   FROM rearc.silver.all_data
+  WHERE period IN ('Q01', 'Q02', 'Q03', 'Q04')
   GROUP BY series_id, year
 ),
 ranked AS (

@@ -8,8 +8,10 @@ from pyspark.sql.window import Window
     comment="Major Sector Productivity and Costs Index - highest annual total per series with dimension lookups",
 )
 def gold_productivity_costs_index():
+    # Q05 is the annual average (see pr.period), not a quarter, so it is left out of the quarterly sum.
     yearly_totals = (
         spark.read.table("rearc.silver.all_data")
+        .filter(col("period").isin("Q01", "Q02", "Q03", "Q04"))
         .groupBy("series_id", "year")
         .agg(_sum("value").alias("total"))
     )

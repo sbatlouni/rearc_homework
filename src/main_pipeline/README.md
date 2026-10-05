@@ -32,8 +32,8 @@ main_pipeline/
 
 Bronze tables are **streaming tables** that use Auto Loader (`cloudFiles`) to incrementally ingest files from UC volumes as they arrive.
 
-* **`bronze_bls.py`** — 10 streaming tables for BLS Productivity & Costs data. Each reads tab-delimited CSV files with `cloudFiles.format=csv`, `sep=\t`, `header=true`, and `inferColumnTypes=true` from `/Volumes/rearc/raw/volume/bls/pr/`. Columns are renamed to clean names, and `_metadata.file_name` is captured as `source_file` for downstream de-duplication.
-* **`bronze_population.py`** — 1 streaming table for DataUSA population data. Reads multi-line JSON (`cloudFiles.format=json`, `multiLine=true`) from `/Volumes/rearc/raw/volume/datausa` with an explicit schema (`annotations`, `columns`, `data`, `page`).
+* **`bronze_bls.py`** — 10 streaming tables for BLS Productivity & Costs data. Each reads tab-delimited CSV files with `cloudFiles.format=csv`, `sep=\t`, `header=true`, and `inferColumnTypes=false` (every column is a string; silver does the typing) from `/Volumes/rearc/raw/volume/bls/pr/`. Each file's header is checked against the expected columns (trimmed, case-insensitive) before columns are renamed to clean names, and `_metadata.file_name` is captured as `source_file` for downstream de-duplication. `expect_all_or_fail` expectations reject rescued data and malformed keys, years, periods and values.
+* **`bronze_population.py`** — 1 streaming table for DataUSA population data. Reads multi-line JSON (`cloudFiles.format=json`, `multiLine=true`) from `/Volumes/rearc/raw/volume/datausa` with an explicit schema (`annotations`, `columns`, `data`, `page`). Fields outside the schema are rescued, and expectations fail the update on rescued data, an empty `data` array, or an unexpected column list.
 
 ### Silver — Cleansing & De-duplication
 
@@ -53,7 +53,7 @@ Silver tables are **materialized views** that clean, type-cast, and de-duplicate
 Gold tables are **materialized views** written in SQL.
 
 * **`Q1.sql`** — `rearc.gold.population_stats_2013_2018`: Mean and standard deviation of annual US population (2013–2018).
-* **`Q2.sql`** — `rearc.gold.productivity_costs_index`: Highest annual total per BLS series with dimension lookups (seasonal, sector, class, measure, duration). Parses `series_id` into component codes via `SUBSTRING` and joins with silver lookup tables.
+* **`Q2.sql`** — `rearc.gold.productivity_costs_index`: Highest annual total per BLS series (summing quarters Q01–Q04; Q05 is the annual average and is excluded) with dimension lookups (seasonal, sector, class, measure, duration). Parses `series_id` into component codes via `SUBSTRING` and joins with silver lookup tables.
 * **`Q3.sql`** — `rearc.gold.series_population`: BLS series `PRS30006032` (Q01 period) joined with US population by year.
 
 ## Alternative Pipelines
